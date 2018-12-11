@@ -37,7 +37,7 @@ module Fastlane
       end
 
       def self.connect_to_artifactory(params)
-        config_keys = [:endpoint, :username, :password, :ssl_pem_file, :ssl_verify, :proxy_username, :proxy_password, :proxy_address, :proxy_port]
+        config_keys = [:endpoint, :username, :password, :api_key, :ssl_pem_file, :ssl_verify, :proxy_username, :proxy_password, :proxy_address, :proxy_port]
         config = params.values.select do |key|
           config_keys.include?(key)
         end
@@ -68,6 +68,7 @@ module Fastlane
           'artifactory(
             username: "username",
             password: "password",
+            api_key: "api_key",
             endpoint: "https://artifactory.example.com/artifactory/",
             file: "example.ipa",                                # File to upload
             repo: "mobile_artifacts",                           # Artifactory repo
@@ -101,12 +102,20 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :username,
                                        env_name: "FL_ARTIFACTORY_USERNAME",
                                        description: "Artifactory username",
-                                       optional: false),
+                                       optional: true,
+                                       conflicting_options: [:api_key]),
           FastlaneCore::ConfigItem.new(key: :password,
                                        env_name: "FL_ARTIFACTORY_PASSWORD",
                                        description: "Artifactory password",
                                        sensitive: true,
-                                       optional: false),
+                                       optional: true,
+                                       conflicting_options: [:api_key]),
+          FastlaneCore::ConfigItem.new(key: :api_key,
+                                       env_name: "FL_ARTIFACTORY_API_KEY",
+                                       description: "Artifactory access key",
+                                       sensitive: true,
+                                       optional: true,
+                                       conflicting_options: [:username, :password]),
           FastlaneCore::ConfigItem.new(key: :properties,
                                        env_name: "FL_ARTIFACTORY_PROPERTIES",
                                        description: "Artifact properties hash",
